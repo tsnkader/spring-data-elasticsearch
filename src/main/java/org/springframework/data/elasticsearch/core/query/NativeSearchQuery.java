@@ -15,15 +15,14 @@
  */
 package org.springframework.data.elasticsearch.core.query;
 
-import org.elasticsearch.index.query.FilterBuilder;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.highlight.HighlightBuilder;
 import org.elasticsearch.search.sort.SortBuilder;
 import org.springframework.data.elasticsearch.core.facet.FacetRequest;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * NativeSearchQuery
@@ -35,29 +34,29 @@ import java.util.List;
 public class NativeSearchQuery extends AbstractQuery implements SearchQuery {
 
 	private QueryBuilder query;
-	private FilterBuilder filter;
+	private QueryBuilder filter;
 	private List<SortBuilder> sorts;
 	private List<FacetRequest> facets;
 	private List<AbstractAggregationBuilder> aggregations;
 	private HighlightBuilder.Field[] highlightFields;
 
-
 	public NativeSearchQuery(QueryBuilder query) {
 		this.query = query;
 	}
 
-	public NativeSearchQuery(QueryBuilder query, FilterBuilder filter) {
+	public NativeSearchQuery(QueryBuilder query, QueryBuilder filter) {
 		this.query = query;
 		this.filter = filter;
 	}
 
-	public NativeSearchQuery(QueryBuilder query, FilterBuilder filter, List<SortBuilder> sorts) {
+	public NativeSearchQuery(QueryBuilder query, QueryBuilder filter, List<SortBuilder> sorts) {
 		this.query = query;
 		this.filter = filter;
 		this.sorts = sorts;
 	}
 
-	public NativeSearchQuery(QueryBuilder query, FilterBuilder filter, List<SortBuilder> sorts, HighlightBuilder.Field[] highlightFields) {
+	public NativeSearchQuery(QueryBuilder query, QueryBuilder filter, List<SortBuilder> sorts,
+			HighlightBuilder.Field[] highlightFields) {
 		this.query = query;
 		this.filter = filter;
 		this.sorts = sorts;
@@ -68,7 +67,7 @@ public class NativeSearchQuery extends AbstractQuery implements SearchQuery {
 		return query;
 	}
 
-	public FilterBuilder getFilter() {
+	public QueryBuilder getFilter() {
 		return filter;
 	}
 
@@ -101,7 +100,6 @@ public class NativeSearchQuery extends AbstractQuery implements SearchQuery {
 	public List<AbstractAggregationBuilder> getAggregations() {
 		return aggregations;
 	}
-
 
 	public void addAggregation(AbstractAggregationBuilder aggregationBuilder) {
 		if (aggregations == null) {

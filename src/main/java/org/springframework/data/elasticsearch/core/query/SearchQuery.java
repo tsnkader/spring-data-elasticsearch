@@ -17,7 +17,6 @@ package org.springframework.data.elasticsearch.core.query;
 
 import java.util.List;
 
-import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.highlight.HighlightBuilder;
@@ -35,7 +34,7 @@ public interface SearchQuery extends Query {
 
 	QueryBuilder getQuery();
 
-	FilterBuilder getFilter();
+	QueryBuilder getFilter();
 
 	List<SortBuilder> getElasticsearchSorts();
 

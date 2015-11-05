@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.elasticsearch.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,12 +48,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration("classpath:/simple-repository-test.xml")
 public class SimpleElasticsearchRepositoryTests {
 
-	@Autowired
-	private SampleElasticsearchRepository repository;
+	@Autowired private SampleElasticsearchRepository repository;
 
-	@Autowired
-	private ElasticsearchTemplate elasticsearchTemplate;
-
+	@Autowired private ElasticsearchTemplate elasticsearchTemplate;
 
 	@Before
 	public void before() {
@@ -229,7 +225,7 @@ public class SimpleElasticsearchRepositoryTests {
 
 		// then
 		assertNotNull("sample entities cant be null..", sampleEntities);
-		List<SampleEntity> entities = Lists.newArrayList(sampleEntities);
+		List<SampleEntity> entities = com.google.common.collect.Lists.newArrayList(sampleEntities);
 		assertThat(entities.size(), is(2));
 	}
 
@@ -409,8 +405,6 @@ public class SimpleElasticsearchRepositoryTests {
 		assertThat(sampleEntities.getTotalElements(), equalTo(2L));
 	}
 
-
-
 	@Test
 	public void shouldDeleteEntity() {
 		// given
@@ -524,7 +518,8 @@ public class SimpleElasticsearchRepositoryTests {
 		repository.save(sampleEntities);
 
 		// when
-		Page<SampleEntity> results = repository.searchSimilar(sampleEntities.get(0), new String[]{"message"}, new PageRequest(0, 5));
+		Page<SampleEntity> results = repository.searchSimilar(sampleEntities.get(0), new String[] { "message" },
+				new PageRequest(0, 5));
 
 		// then
 		assertThat(results.getTotalElements(), is(greaterThanOrEqualTo(1L)));

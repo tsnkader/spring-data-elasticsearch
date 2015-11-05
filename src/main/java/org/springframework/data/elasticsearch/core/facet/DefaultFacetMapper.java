@@ -18,12 +18,14 @@ package org.springframework.data.elasticsearch.core.facet;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.elasticsearch.search.facet.Facet;
-import org.elasticsearch.search.facet.histogram.HistogramFacet;
-import org.elasticsearch.search.facet.range.RangeFacet;
-import org.elasticsearch.search.facet.statistical.StatisticalFacet;
-import org.elasticsearch.search.facet.terms.TermsFacet;
-import org.springframework.data.elasticsearch.core.facet.result.*;
+import org.elasticsearch.search.aggregations.Aggregation;
+import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
+import org.elasticsearch.search.aggregations.bucket.range.Range;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket;
+import org.elasticsearch.search.aggregations.metrics.NumericMetricsAggregation;
+import org.springframework.data.elasticsearch.core.facet.result.Term;
+import org.springframework.data.elasticsearch.core.facet.result.TermResult;
 
 /**
  * @author Artur Konczak
@@ -31,51 +33,65 @@ import org.springframework.data.elasticsearch.core.facet.result.*;
  */
 public class DefaultFacetMapper {
 
-	public static FacetResult parse(Facet facet) {
-		if (facet instanceof TermsFacet) {
-			return parseTerm((TermsFacet) facet);
+	public static FacetResult parse(Aggregation facet) {
+		if (facet instanceof Terms) {
+			return parseTerm((Terms) facet);
 		}
 
-		if (facet instanceof RangeFacet) {
-			return parseRange((RangeFacet) facet);
+		if (facet instanceof Range) {
+			return parseRange((Range) facet);
 		}
 
-		if (facet instanceof StatisticalFacet) {
-			return parseStatistical((StatisticalFacet) facet);
+		if (facet instanceof NumericMetricsAggregation) {
+			return parseStatistical((NumericMetricsAggregation) facet);
 		}
 
-		if (facet instanceof HistogramFacet) {
-			return parseHistogram((HistogramFacet) facet);
+		if (facet instanceof Histogram) {
+			return parseHistogram((Histogram) facet);
 		}
 
 		return null;
 	}
 
-	private static FacetResult parseTerm(TermsFacet facet) {
+	private static FacetResult parseTerm(Terms facet) {
 		List<Term> entries = new ArrayList<Term>();
-		for (TermsFacet.Entry entry : facet.getEntries()) {
-			entries.add(new Term(entry.getTerm().toString(), entry.getCount()));
+		for (Bucket entry : facet.getBuckets()) {
+			entries.add(new Term(entry.getKeyAsString(), (int) entry.getDocCount()));
 		}
-		return new TermResult(facet.getName(), entries, facet.getTotalCount(), facet.getOtherCount(), facet.getMissingCount());
+		return new TermResult(facet.getName(), entries, facet.getBuckets().size(), facet.getSumOfOtherDocCounts(),
+				facet.getDocCountError());
 	}
 
-	private static FacetResult parseRange(RangeFacet facet) {
-		List<Range> entries = new ArrayList<Range>();
-		for (RangeFacet.Entry entry : facet.getEntries()) {
-			entries.add(new Range(entry.getFrom() == Double.NEGATIVE_INFINITY ? null : entry.getFrom(), entry.getTo() == Double.POSITIVE_INFINITY ? null : entry.getTo(), entry.getCount(), entry.getTotal(), entry.getTotalCount(), entry.getMin(), entry.getMax()));
-		}
-		return new RangeResult(facet.getName(), entries);
+	private static FacetResult parseRange(Range facet) {
+
+		// TODO:
+		throw new UnsupportedOperationException("TODO: convert Range to facet result");
+		// List<Range> entries = new ArrayList<Range>();
+		// for (RangeFacet.Entry entry : facet.()) {
+		// entries.add(new Range(entry.getFrom() == Double.NEGATIVE_INFINITY ? null : entry.getFrom(),
+		// entry.getTo() == Double.POSITIVE_INFINITY ? null : entry.getTo(), entry.getCount(), entry.getTotal(), entry
+		// .getTotalCount(), entry.getMin(), entry.getMax()));
+		// }
+		// return new RangeResult(facet..getName(), entries);
 	}
 
-	private static FacetResult parseStatistical(StatisticalFacet facet) {
-		return new StatisticalResult(facet.getName(), facet.getCount(), facet.getMax(), facet.getMin(), facet.getMean(), facet.getStdDeviation(), facet.getSumOfSquares(), facet.getTotal(), facet.getVariance());
+	private static FacetResult parseStatistical(NumericMetricsAggregation facet) {
+
+		// TODO:
+		throw new UnsupportedOperationException("TODO: convert NumericMetricsAggregation to facet result");
+		// return new StatisticalResult(facet.getName(), facet.getCount(), facet.getMax(), facet.getMin(), facet.getMean(),
+		// facet.getStdDeviation(), facet.getSumOfSquares(), facet.getTotal(), facet.getVariance());
 	}
 
-	private static FacetResult parseHistogram(HistogramFacet facet) {
-		List<IntervalUnit> entries = new ArrayList<IntervalUnit>();
-		for (HistogramFacet.Entry entry : facet.getEntries()) {
-			entries.add(new IntervalUnit(entry.getKey(), entry.getCount(), entry.getTotalCount(), entry.getTotal(), entry.getMean(), entry.getMin(), entry.getMax()));
-		}
-		return new HistogramResult(facet.getName(), entries);
+	private static FacetResult parseHistogram(Histogram facet) {
+
+		// TODO:
+		throw new UnsupportedOperationException("TODO: convert Histogram to facet result");
+		// List<IntervalUnit> entries = new ArrayList<IntervalUnit>();
+		// for (Bucket entry : facet.getBuckets()) {
+		// entries.add(new IntervalUnit(entry.getKey(), entry.getDocCount(), entry.(), entry.(), entry
+		// .getMean(), entry.getMin(), entry.getMax()));
+		// }
+		// return new HistogramResult(facet.getName(), entries);
 	}
 }

@@ -42,8 +42,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration("classpath:elasticsearch-template-test.xml")
 public class ElasticsearchTemplateParentChildTests {
 
-	@Autowired
-	private ElasticsearchTemplate elasticsearchTemplate;
+	@Autowired private ElasticsearchTemplate elasticsearchTemplate;
 
 	@Before
 	public void before() {
@@ -75,34 +74,36 @@ public class ElasticsearchTemplateParentChildTests {
 		elasticsearchTemplate.refresh(ChildEntity.class, true);
 
 		// find all parents that have the first child
-		QueryBuilder query = hasChildQuery(ParentEntity.CHILD_TYPE, QueryBuilders.termQuery("name", child1name.toLowerCase()));
+		QueryBuilder query = hasChildQuery(ParentEntity.CHILD_TYPE,
+				QueryBuilders.termQuery("name", child1name.toLowerCase()));
 		List<ParentEntity> parents = elasticsearchTemplate.queryForList(new NativeSearchQuery(query), ParentEntity.class);
 
 		// we're expecting only the first parent as result
 		assertThat("parents", parents, contains(hasProperty("id", is(parent1.getId()))));
 	}
 
-	@Test
-	public void shouldSearchTopChildrenForGivenParent() {
-		// index two parents
-		ParentEntity parent1 = index("parent1", "First Parent");
-		ParentEntity parent2 = index("parent2", "Second Parent");
-
-		// index a child for each parent
-		String child1name = "First";
-		index("child1", parent1.getId(), child1name);
-		index("child2", parent2.getId(), "Second");
-
-		elasticsearchTemplate.refresh(ParentEntity.class, true);
-		elasticsearchTemplate.refresh(ChildEntity.class, true);
-
-		// find all parents that have the first child using topChildren Query
-		QueryBuilder query = topChildrenQuery(ParentEntity.CHILD_TYPE, QueryBuilders.termQuery("name", child1name.toLowerCase()));
-		List<ParentEntity> parents = elasticsearchTemplate.queryForList(new NativeSearchQuery(query), ParentEntity.class);
-
-		// we're expecting only the first parent as result
-		assertThat("parents", parents, contains(hasProperty("id", is(parent1.getId()))));
-	}
+	// @Test
+	// public void shouldSearchTopChildrenForGivenParent() {
+	// // index two parents
+	// ParentEntity parent1 = index("parent1", "First Parent");
+	// ParentEntity parent2 = index("parent2", "Second Parent");
+	//
+	// // index a child for each parent
+	// String child1name = "First";
+	// index("child1", parent1.getId(), child1name);
+	// index("child2", parent2.getId(), "Second");
+	//
+	// elasticsearchTemplate.refresh(ParentEntity.class, true);
+	// elasticsearchTemplate.refresh(ChildEntity.class, true);
+	//
+	// // find all parents that have the first child using topChildren Query
+	// QueryBuilder query = topChildrenQuery(ParentEntity.CHILD_TYPE,
+	// QueryBuilders.termQuery("name", child1name.toLowerCase()));
+	// List<ParentEntity> parents = elasticsearchTemplate.queryForList(new NativeSearchQuery(query), ParentEntity.class);
+	//
+	// // we're expecting only the first parent as result
+	// assertThat("parents", parents, contains(hasProperty("id", is(parent1.getId()))));
+	// }
 
 	private ParentEntity index(String parentId, String name) {
 		ParentEntity parent = new ParentEntity(parentId, name);

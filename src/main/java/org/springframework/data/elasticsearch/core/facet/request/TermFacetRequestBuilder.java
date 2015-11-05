@@ -40,7 +40,7 @@ public class TermFacetRequestBuilder {
 		return this;
 	}
 
-	public TermFacetRequestBuilder excludeTerms(Object... terms) {
+	public TermFacetRequestBuilder excludeTerms(String... terms) {
 		result.setExcludeTerms(terms);
 		return this;
 	}

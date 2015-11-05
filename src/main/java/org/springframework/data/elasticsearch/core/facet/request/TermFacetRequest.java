@@ -17,10 +17,9 @@ package org.springframework.data.elasticsearch.core.facet.request;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-import org.elasticsearch.search.facet.FacetBuilder;
-import org.elasticsearch.search.facet.FacetBuilders;
-import org.elasticsearch.search.facet.terms.TermsFacet;
-import org.elasticsearch.search.facet.terms.TermsFacetBuilder;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
 import org.springframework.data.elasticsearch.core.facet.AbstractFacetRequest;
 import org.springframework.util.Assert;
 
@@ -32,7 +31,7 @@ import org.springframework.util.Assert;
 public class TermFacetRequest extends AbstractFacetRequest {
 
 	private String[] fields;
-	private Object[] excludeTerms;
+	private String[] excludeTerms;
 	private int size = 10;
 	private TermFacetOrder order = TermFacetOrder.descCount;
 	private boolean allTerms = false;
@@ -56,7 +55,7 @@ public class TermFacetRequest extends AbstractFacetRequest {
 		this.order = order;
 	}
 
-	public void setExcludeTerms(Object... excludeTerms) {
+	public void setExcludeTerms(String... excludeTerms) {
 		this.excludeTerms = excludeTerms;
 	}
 
@@ -74,33 +73,33 @@ public class TermFacetRequest extends AbstractFacetRequest {
 	}
 
 	@Override
-	public FacetBuilder getFacet() {
+	public TermsBuilder getFacet() {
 		Assert.notEmpty(fields, "Please select at last one field !!!");
-		TermsFacetBuilder builder = FacetBuilders.termsFacet(getName()).fields(fields).size(size);
+		TermsBuilder builder = AggregationBuilders.terms(getName()).field(fields[0]);
 		switch (order) {
 
 			case descTerm:
-				builder.order(TermsFacet.ComparatorType.REVERSE_TERM);
+				builder.order(Terms.Order.term(false));
 				break;
 			case ascTerm:
-				builder.order(TermsFacet.ComparatorType.TERM);
+				builder.order(Terms.Order.term(true));
 				break;
 			case ascCount:
-				builder.order(TermsFacet.ComparatorType.REVERSE_COUNT);
+				builder.order(Terms.Order.count(true));
 				break;
 			default:
-				builder.order(TermsFacet.ComparatorType.COUNT);
+				builder.order(Terms.Order.count(false));
 		}
 		if (ArrayUtils.isNotEmpty(excludeTerms)) {
 			builder.exclude(excludeTerms);
 		}
 
-		if (allTerms) {
-			builder.allTerms(allTerms);
-		}
+		// if (allTerms) {
+		// builder.^
+		// }
 
 		if (StringUtils.isNotBlank(regex)) {
-			builder.regex(regex, regexFlag);
+			builder.include(regex);
 		}
 
 		return builder;

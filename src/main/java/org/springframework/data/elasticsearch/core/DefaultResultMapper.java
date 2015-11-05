@@ -15,7 +15,6 @@
  */
 package org.springframework.data.elasticsearch.core;
 
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -29,21 +28,21 @@ import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.get.MultiGetItemResponse;
 import org.elasticsearch.action.get.MultiGetResponse;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.common.base.Strings;
-import org.elasticsearch.common.jackson.core.JsonEncoding;
-import org.elasticsearch.common.jackson.core.JsonFactory;
-import org.elasticsearch.common.jackson.core.JsonGenerator;
+import org.elasticsearch.common.Strings;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHitField;
-import org.elasticsearch.search.facet.Facet;
+import org.elasticsearch.search.aggregations.Aggregation;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.annotations.Document;
-import org.springframework.data.elasticsearch.core.facet.DefaultFacetMapper;
 import org.springframework.data.elasticsearch.core.facet.FacetResult;
 import org.springframework.data.elasticsearch.core.mapping.ElasticsearchPersistentEntity;
 import org.springframework.data.elasticsearch.core.mapping.ElasticsearchPersistentProperty;
 import org.springframework.data.mapping.PersistentProperty;
 import org.springframework.data.mapping.context.MappingContext;
+
+import com.fasterxml.jackson.core.JsonEncoding;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
 
 /**
  * @author Artur Konczak
@@ -56,7 +55,8 @@ public class DefaultResultMapper extends AbstractResultMapper {
 		super(new DefaultEntityMapper());
 	}
 
-	public DefaultResultMapper(MappingContext<? extends ElasticsearchPersistentEntity<?>, ElasticsearchPersistentProperty> mappingContext) {
+	public DefaultResultMapper(
+			MappingContext<? extends ElasticsearchPersistentEntity<?>, ElasticsearchPersistentProperty> mappingContext) {
 		super(new DefaultEntityMapper());
 		this.mappingContext = mappingContext;
 	}
@@ -79,7 +79,7 @@ public class DefaultResultMapper extends AbstractResultMapper {
 		for (SearchHit hit : response.getHits()) {
 			if (hit != null) {
 				T result = null;
-				if (!Strings.isNullOrEmpty(hit.sourceAsString())) {
+				if (!Strings.isEmpty(hit.sourceAsString())) {
 					result = mapEntity(hit.sourceAsString(), clazz);
 				} else {
 					result = mapEntity(hit.getFields().values(), clazz);
@@ -89,12 +89,10 @@ public class DefaultResultMapper extends AbstractResultMapper {
 			}
 		}
 		List<FacetResult> facets = new ArrayList<FacetResult>();
-		if (response.getFacets() != null) {
-			for (Facet facet : response.getFacets()) {
-				FacetResult facetResult = DefaultFacetMapper.parse(facet);
-				if (facetResult != null) {
-					facets.add(facetResult);
-				}
+		if (response.getAggregations() != null) {
+			for (Aggregation facet : response.getAggregations()) {
+				// TODO
+				throw new UnsupportedOperationException("TODO: convert response aggregations");
 			}
 		}
 
@@ -154,7 +152,8 @@ public class DefaultResultMapper extends AbstractResultMapper {
 
 	private <T> void setPersistentEntityId(T result, String id, Class<T> clazz) {
 		if (mappingContext != null && clazz.isAnnotationPresent(Document.class)) {
-			PersistentProperty<ElasticsearchPersistentProperty> idProperty = mappingContext.getPersistentEntity(clazz).getIdProperty();
+			PersistentProperty<ElasticsearchPersistentProperty> idProperty = mappingContext.getPersistentEntity(clazz)
+					.getIdProperty();
 			// Only deal with String because ES generated Ids are strings !
 			if (idProperty != null && idProperty.getType().isAssignableFrom(String.class)) {
 				Method setter = idProperty.getSetter();

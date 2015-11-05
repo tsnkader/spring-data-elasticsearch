@@ -19,7 +19,7 @@ import static org.elasticsearch.node.NodeBuilder.*;
 
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.node.NodeClient;
-import org.elasticsearch.common.settings.ImmutableSettings;
+import org.elasticsearch.common.settings.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
@@ -42,8 +42,7 @@ public class NodeClientFactoryBean implements FactoryBean<NodeClient>, Initializ
 	private NodeClient nodeClient;
 	private String pathData;
 
-	NodeClientFactoryBean() {
-	}
+	NodeClientFactoryBean() {}
 
 	public NodeClientFactoryBean(boolean local) {
 		this.local = local;
@@ -66,10 +65,12 @@ public class NodeClientFactoryBean implements FactoryBean<NodeClient>, Initializ
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		ImmutableSettings.Builder settings = ImmutableSettings.settingsBuilder()
-				.put("http.enabled", String.valueOf(this.enableHttp))
+		Settings.Builder settings = Settings.builder().put("http.enabled", String.valueOf(this.enableHttp))
 				.put("path.data", this.pathData);
 
+		if (settings.get("path.home") == null) {
+			settings.put("path.home", System.getProperty("java.io.tmpdir"));
+		}
 
 		nodeClient = (NodeClient) nodeBuilder().settings(settings).clusterName(this.clusterName).local(this.local).node()
 				.client();

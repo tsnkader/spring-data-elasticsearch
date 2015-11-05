@@ -18,9 +18,8 @@ package org.springframework.data.elasticsearch.core.facet.request;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
-import org.elasticsearch.search.facet.FacetBuilder;
-import org.elasticsearch.search.facet.FacetBuilders;
-import org.elasticsearch.search.facet.histogram.HistogramFacetBuilder;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.histogram.HistogramBuilder;
 import org.springframework.data.elasticsearch.core.facet.AbstractFacetRequest;
 import org.springframework.util.Assert;
 
@@ -50,16 +49,19 @@ public class HistogramFacetRequest extends AbstractFacetRequest {
 		this.timeUnit = timeUnit;
 	}
 
-	public FacetBuilder getFacet() {
+	public HistogramBuilder getFacet() {
 		Assert.notNull(getName(), "Facet name can't be a null !!!");
 		Assert.isTrue(StringUtils.isNotBlank(field), "Please select field on which to build the facet !!!");
 		Assert.isTrue(interval > 0, "Please provide interval as positive value greater them zero !!!");
 
-		HistogramFacetBuilder builder = FacetBuilders.histogramFacet(getName());
+		HistogramBuilder builder = AggregationBuilders.histogram(getName());
 		builder.field(field);
 
 		if (timeUnit != null) {
-			builder.interval(interval, timeUnit);
+
+			// TODO
+			throw new UnsupportedOperationException("TODO: Need to convert time unit for interval");
+			// builder.interval(interval, timeUnit);
 		} else {
 			builder.interval(interval);
 		}

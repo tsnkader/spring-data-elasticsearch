@@ -16,7 +16,6 @@
 package org.springframework.data.elasticsearch.core;
 
 import static org.elasticsearch.index.query.QueryBuilders.*;
-import static org.springframework.data.elasticsearch.core.query.Criteria.*;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -29,6 +28,7 @@ import org.elasticsearch.index.query.BoostableQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryStringQueryBuilder;
 import org.springframework.data.elasticsearch.core.query.Criteria;
+import org.springframework.data.elasticsearch.core.query.Criteria.OperationKey;
 import org.springframework.util.Assert;
 
 /**
@@ -40,7 +40,6 @@ import org.springframework.util.Assert;
  * @author Artur Konczak
  */
 class CriteriaQueryProcessor {
-
 
 	QueryBuilder createQueryFromCriteria(Criteria criteria) {
 		if (criteria == null)
@@ -106,7 +105,6 @@ class CriteriaQueryProcessor {
 		return query;
 	}
 
-
 	private QueryBuilder createQueryFragmentForCriteria(Criteria chainedCriteria) {
 		if (chainedCriteria.getQueryCriteriaEntries().isEmpty())
 			return null;
@@ -133,8 +131,8 @@ class CriteriaQueryProcessor {
 		return query;
 	}
 
-
-	private QueryBuilder processCriteriaEntry(Criteria.CriteriaEntry entry,/* OperationKey key, Object value,*/ String fieldName) {
+	private QueryBuilder processCriteriaEntry(Criteria.CriteriaEntry entry,/* OperationKey key, Object value,*/
+			String fieldName) {
 		Object value = entry.getValue();
 		if (value == null) {
 			return null;
@@ -148,19 +146,19 @@ class CriteriaQueryProcessor {
 
 		switch (key) {
 			case EQUALS:
-				query = queryString(searchText).field(fieldName).defaultOperator(QueryStringQueryBuilder.Operator.AND);
+				query = queryStringQuery(searchText).field(fieldName).defaultOperator(QueryStringQueryBuilder.Operator.AND);
 				break;
 			case CONTAINS:
-				query = queryString("*" + searchText + "*").field(fieldName).analyzeWildcard(true);
+				query = queryStringQuery("*" + searchText + "*").field(fieldName).analyzeWildcard(true);
 				break;
 			case STARTS_WITH:
-				query = queryString(searchText + "*").field(fieldName).analyzeWildcard(true);
+				query = queryStringQuery(searchText + "*").field(fieldName).analyzeWildcard(true);
 				break;
 			case ENDS_WITH:
-				query = queryString("*" + searchText).field(fieldName).analyzeWildcard(true);
+				query = queryStringQuery("*" + searchText).field(fieldName).analyzeWildcard(true);
 				break;
 			case EXPRESSION:
-				query = queryString(searchText).field(fieldName);
+				query = queryStringQuery(searchText).field(fieldName);
 				break;
 			case LESS_EQUAL:
 				query = rangeQuery(fieldName).lte(value);
@@ -185,14 +183,14 @@ class CriteriaQueryProcessor {
 				query = boolQuery();
 				collection = (Iterable<Object>) value;
 				for (Object item : collection) {
-					((BoolQueryBuilder) query).should(queryString(item.toString()).field(fieldName));
+					((BoolQueryBuilder) query).should(queryStringQuery(item.toString()).field(fieldName));
 				}
 				break;
 			case NOT_IN:
 				query = boolQuery();
 				collection = (Iterable<Object>) value;
 				for (Object item : collection) {
-					((BoolQueryBuilder) query).mustNot(queryString(item.toString()).field(fieldName));
+					((BoolQueryBuilder) query).mustNot(queryStringQuery(item.toString()).field(fieldName));
 				}
 				break;
 		}

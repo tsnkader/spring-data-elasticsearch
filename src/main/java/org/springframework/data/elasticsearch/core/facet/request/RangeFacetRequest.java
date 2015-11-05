@@ -19,9 +19,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.elasticsearch.search.facet.FacetBuilder;
-import org.elasticsearch.search.facet.FacetBuilders;
-import org.elasticsearch.search.facet.range.RangeFacetBuilder;
+import org.elasticsearch.search.aggregations.AggregationBuilder;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.range.RangeBuilder;
 import org.springframework.data.elasticsearch.core.facet.AbstractFacetRequest;
 import org.springframework.util.Assert;
 
@@ -69,13 +69,16 @@ public class RangeFacetRequest extends AbstractFacetRequest {
 	}
 
 	@Override
-	public FacetBuilder getFacet() {
+	public AggregationBuilder getFacet() {
 		Assert.notNull(getName(), "Facet name can't be a null !!!");
-		Assert.isTrue(StringUtils.isNotBlank(field) || StringUtils.isNotBlank(keyField) && StringUtils.isNotBlank(valueField), "Please select field or key field and value field !!!");
+		Assert.isTrue(
+				StringUtils.isNotBlank(field) || StringUtils.isNotBlank(keyField) && StringUtils.isNotBlank(valueField),
+				"Please select field or key field and value field !!!");
 
-		RangeFacetBuilder builder = FacetBuilders.rangeFacet(getName());
+		RangeBuilder builder = AggregationBuilders.range(getName());
+
 		if (StringUtils.isNotBlank(keyField)) {
-			builder.keyField(keyField).valueField(valueField);
+			builder.field(keyField); // ..valueField(valueField);
 		} else {
 			builder.field(field);
 		}
@@ -83,10 +86,12 @@ public class RangeFacetRequest extends AbstractFacetRequest {
 		for (Entry entry : entries) {
 			if (entry instanceof DoubleEntry) {
 				DoubleEntry doubleEntry = (DoubleEntry) entry;
-				builder.addRange(validateValue(doubleEntry.getFrom(), Double.NEGATIVE_INFINITY), validateValue(doubleEntry.getTo(), Double.POSITIVE_INFINITY));
+				builder.addRange(validateValue(doubleEntry.getFrom(), Double.NEGATIVE_INFINITY),
+						validateValue(doubleEntry.getTo(), Double.POSITIVE_INFINITY));
 			} else {
-				StringEntry stringEntry = (StringEntry) entry;
-				builder.addRange(stringEntry.getFrom(), stringEntry.getTo());
+				// StringEntry stringEntry = (StringEntry) entry;
+				// builder.(keyField, stringEntry.getFrom(), stringEntry.getTo());
+				throw new UnsupportedOperationException("string entry range ?");
 			}
 		}
 

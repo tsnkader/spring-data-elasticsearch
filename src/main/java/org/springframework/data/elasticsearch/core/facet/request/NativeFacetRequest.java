@@ -15,7 +15,7 @@
  */
 package org.springframework.data.elasticsearch.core.facet.request;
 
-import org.elasticsearch.search.facet.FacetBuilder;
+import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.springframework.data.elasticsearch.core.facet.FacetRequest;
 
 /**
@@ -24,20 +24,20 @@ import org.springframework.data.elasticsearch.core.facet.FacetRequest;
  */
 public class NativeFacetRequest implements FacetRequest {
 
-	private FacetBuilder facet;
+	private AggregationBuilder<?> facet;
 	private boolean applyQueryFilter;
 
-	public NativeFacetRequest(FacetBuilder facet) {
+	public NativeFacetRequest(AggregationBuilder facet) {
 		this(facet, false);
 	}
 
-	public NativeFacetRequest(FacetBuilder facet, boolean applyQueryFilter) {
+	public NativeFacetRequest(AggregationBuilder facet, boolean applyQueryFilter) {
 		this.facet = facet;
 		this.applyQueryFilter = applyQueryFilter;
 	}
 
 	@Override
-	public FacetBuilder getFacet() {
+	public AggregationBuilder getFacet() {
 		return facet;
 	}
 
