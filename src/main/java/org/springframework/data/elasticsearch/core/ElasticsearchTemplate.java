@@ -50,6 +50,7 @@ import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
+import org.elasticsearch.action.suggest.SuggestRequest;
 import org.elasticsearch.action.suggest.SuggestRequestBuilder;
 import org.elasticsearch.action.suggest.SuggestResponse;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
@@ -60,6 +61,7 @@ import org.elasticsearch.cluster.metadata.AliasAction;
 import org.elasticsearch.cluster.metadata.AliasMetaData;
 import org.elasticsearch.common.collect.MapBuilder;
 import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.common.xcontent.ToXContent;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.MoreLikeThisQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -228,6 +230,16 @@ public class ElasticsearchTemplate implements ElasticsearchOperations, Applicati
 	@Override
 	public ElasticsearchConverter getElasticsearchConverter() {
 		return elasticsearchConverter;
+	}
+
+	@Override
+	public Client getClient() {
+		return client;
+	}
+
+	@Override
+	public ResultsMapper getResultsMapper() {
+		return resultsMapper;
 	}
 
 	@Override
@@ -1156,10 +1168,6 @@ public class ElasticsearchTemplate implements ElasticsearchOperations, Applicati
 	private static String[] toArray(List<String> values) {
 		String[] valuesAsArray = new String[values.size()];
 		return values.toArray(valuesAsArray);
-	}
-
-	protected ResultsMapper getResultsMapper() {
-		return resultsMapper;
 	}
 
 	private boolean isDocument(Class clazz) {

@@ -27,6 +27,7 @@ import org.springframework.data.util.CloseableIterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * ElasticsearchOperations
@@ -43,9 +44,14 @@ public interface ElasticsearchOperations {
 	ElasticsearchConverter getElasticsearchConverter();
 
 	/**
-	 * @return elasticsearch client
+	 * @return Client in use
 	 */
 	Client getClient();
+
+	/**
+	 * @return ResultsMapper in use
+	 */
+	ResultsMapper getResultsMapper();
 
 	/**
 	 * Create an index for a class
