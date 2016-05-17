@@ -233,11 +233,6 @@ public class ElasticsearchTemplate implements ElasticsearchOperations, Applicati
 	}
 
 	@Override
-	public Client getClient() {
-		return client;
-	}
-
-	@Override
 	public ResultsMapper getResultsMapper() {
 		return resultsMapper;
 	}
